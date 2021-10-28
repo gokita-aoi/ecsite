@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>ユーザー登録</title>
+<link href="/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
+<script src="http://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script type="text/javascript">
+	$(() => {
+		$('button#checkUserName').on('click', () => {
+		let userName = $('form#addUserForm input[name=userName]').val();
+			if (userName == "") return;
+			checkUserName(userName);
+		});
+	});
+
+	function checkUserName(userName) {
+		$.ajax({
+			type: 'POST',
+			url: '/ecsite/admin/user/duplicatedUserName',
+			data: JSON.stringify({'userName': userName}),
+			contentType: 'application/json',
+		})
+		.then((result) => {
+			if (result) {	// 重複あり
+				alert('すでに登録されているため、使用できません。');
+				$('span#checkOK').prop('class', 'hidden');
+			} else {			// 重複なし
+				$('button#register').prop('disabled', false);
+				$('span#checkOK').prop('class', 'info');
+			}
+		}, () => {
+			alert('Error: ajax connection failed.');
+		});
+	}
+	
+</script>
+</head>
+<body>
+
+<header>
+	<h1>新規ユーザー登録画面</h1>
+</header>
+
+	<form name="addUserForm" id="addUserForm" method="post" action="/ecsite/admin/user/addUser">
+		<div>
+			<p>ユーザー名:
+				<input type="text" id="userName" name="userName">
+				<button type="submit" id="checkUserName">重複確認</button>
+				<span id="checkOK" class="hidden">OK</span>
+			</p>
+		</div>
+			<p>パスワード :<input type="text" id="password" name="password"></p>
+			<p>フルネーム :<input type="text" id="fullName" name="fullName"></p>
+		<button type="submit"　id="register">登録</button>
+	</form>
+
+
+
+</body>
+</html>
